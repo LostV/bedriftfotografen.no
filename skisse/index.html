@@ -1,0 +1,832 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bedriftsfotografen – skisse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f2f0eb; --ink:#141414; --mute:#6b6862; --line:#cfcbc2;
+  --frame:#d9d5cc; --frame2:#c9c4b9; --accent:#e4572e; --note:#fff6c7; --note-ink:#5a4a00;
+  --mono:"JetBrains Mono",ui-monospace,monospace; --sans:"Inter Tight",system-ui,sans-serif;
+  --gutter:clamp(16px,4vw,48px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.45;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+button{font:inherit;cursor:pointer}
+.mono{font-family:var(--mono);font-size:.75rem;letter-spacing:.02em;text-transform:uppercase}
+.mute{color:var(--mute)}
+
+/* ---------- Header ---------- */
+.top{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:24px;padding:14px var(--gutter);background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.brand{text-decoration:none;display:flex;flex-direction:column;line-height:1.05}
+.brand b{font-weight:800;font-size:1.05rem;letter-spacing:-.01em}
+.brand span{font-family:var(--mono);font-size:.62rem;color:var(--mute);text-transform:uppercase}
+.nav{display:flex;gap:22px;margin-left:auto}
+.nav a{text-decoration:none;font-weight:500;font-size:.95rem;padding:4px 0;border-bottom:2px solid transparent}
+.nav a[aria-current=page]{border-color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:8px;text-decoration:none;border:1.5px solid var(--ink);padding:10px 16px;font-weight:600;font-size:.92rem;background:transparent;color:var(--ink);border-radius:999px;white-space:nowrap}
+.btn.solid{background:var(--ink);color:var(--paper)}
+.btn.accent{background:var(--accent);border-color:var(--accent);color:#fff}
+.menu-btn{display:none;margin-left:auto;border:0;background:none;font-family:var(--mono);font-size:.8rem;text-transform:uppercase}
+@media (max-width:820px){
+  .nav{display:none;position:absolute;top:100%;left:0;right:0;flex-direction:column;gap:0;background:var(--paper);border-bottom:1px solid var(--line);padding:8px var(--gutter) 16px}
+  .nav.open{display:flex}
+  .nav a{padding:12px 0;font-size:1.2rem;border-bottom:1px solid var(--line)}
+  .menu-btn{display:block}
+  .top .btn.solid{display:none}
+}
+/* Fast bestill-knapp på mobil */
+.fab{display:none;position:fixed;left:16px;right:16px;bottom:16px;z-index:60;justify-content:center;padding:14px;font-size:1rem;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+@media (max-width:820px){.fab{display:flex}body{padding-bottom:80px}}
+
+/* ---------- Notater (wireframe-annotasjoner) ---------- */
+.note{display:block;background:var(--note);color:var(--note-ink);font-family:var(--mono);font-size:.72rem;line-height:1.5;padding:8px 10px;border-left:3px solid #d9b800;margin:10px 0;max-width:62ch;text-transform:none}
+body.hide-notes .note{display:none}
+.note-toggle{position:fixed;right:16px;bottom:16px;z-index:70;background:var(--note);border:1px solid #d9b800;color:var(--note-ink);font-family:var(--mono);font-size:.72rem;padding:8px 12px;border-radius:999px}
+@media (max-width:820px){.note-toggle{bottom:84px}}
+
+/* ---------- Bilde-plassholder (kontaktark-ramme) ---------- */
+.frame{position:relative;background:repeating-linear-gradient(135deg,var(--frame) 0 14px,var(--frame2) 14px 15px);overflow:hidden}
+.frame::before,.frame::after{content:"";position:absolute;width:18px;height:18px;border:1.5px solid var(--ink);opacity:.55}
+.frame::before{top:10px;left:10px;border-right:0;border-bottom:0}
+.frame::after{bottom:10px;right:10px;border-left:0;border-top:0}
+.frame .cap{position:absolute;left:12px;bottom:10px;font-family:var(--mono);font-size:.68rem;text-transform:uppercase;background:var(--paper);padding:3px 6px}
+.frame .no{position:absolute;right:12px;top:10px;font-family:var(--mono);font-size:.68rem}
+.frame.video .no::before{content:"▶ VIDEO  ";color:var(--accent)}
+
+/* ---------- Sider ---------- */
+.page{display:none}
+.page.active{display:block}
+.wrap{padding:0 var(--gutter)}
+section{padding:clamp(56px,9vw,120px) 0}
+h1,h2,h3{letter-spacing:-.025em;line-height:1}
+h1{font-size:clamp(2.6rem,9vw,7.5rem);font-weight:800}
+h2{font-size:clamp(2rem,5.5vw,4.2rem);font-weight:800}
+h3{font-size:clamp(1.3rem,2.4vw,1.8rem);font-weight:700}
+.lede{font-size:clamp(1.05rem,1.8vw,1.3rem);max-width:46ch}
+.eyebrow{font-family:var(--mono);font-size:.75rem;text-transform:uppercase;color:var(--mute);display:block;margin-bottom:14px}
+
+/* Hero */
+.hero{position:relative;min-height:calc(100svh - 64px);display:grid;align-items:end;padding:0}
+.hero .frame{position:absolute;inset:0}
+.hero-inner{position:relative;padding:var(--gutter);padding-bottom:clamp(32px,6vw,72px);background:linear-gradient(transparent,color-mix(in srgb,var(--paper) 92%,transparent) 45%)}
+.hero h1 span{display:block}
+.hero .actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.hero .meta{display:flex;flex-wrap:wrap;gap:6px 20px;margin-top:22px}
+
+/* Rutestripe */
+.strip{background:var(--ink);color:var(--paper);padding:0;overflow:hidden}
+.strip-inner{display:flex;align-items:stretch}
+.strip-label{flex:none;padding:18px var(--gutter);display:flex;align-items:center;gap:10px;border-right:1px solid #333}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 0 var(--accent);animation:pulse 2s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 10px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.strip-list{display:flex;overflow-x:auto;scrollbar-width:none;flex:1}
+.strip-list a{flex:none;text-decoration:none;padding:16px 26px;border-right:1px solid #333;display:flex;flex-direction:column;gap:2px}
+.strip-list a b{font-size:1.05rem}
+.strip-list a span{font-family:var(--mono);font-size:.7rem;color:#aaa;text-transform:uppercase}
+.strip-list a:hover{background:#222}
+.strip-list a.more{color:var(--accent);justify-content:center;font-weight:600}
+
+/* Tjenestekapitler */
+.chapter{scroll-margin-top:64px;border-top:1px solid var(--line);padding:clamp(40px,7vw,90px) 0}
+.chapter-head{display:grid;grid-template-columns:auto 1fr auto;gap:12px 28px;align-items:end;padding:0 var(--gutter);margin-bottom:24px}
+.chapter-head .num{font-family:var(--mono);font-size:.8rem;color:var(--mute)}
+.chapter-head p{grid-column:2;max-width:52ch;color:var(--mute)}
+.chapter-head .tags{grid-column:2;display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-family:var(--mono);font-size:.68rem;text-transform:uppercase;border:1px solid var(--line);padding:3px 8px;border-radius:999px}
+@media (max-width:640px){.chapter-head{grid-template-columns:1fr}.chapter-head p,.chapter-head .tags{grid-column:1}}
+.reel{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 var(--gutter) 8px;scrollbar-width:thin}
+.reel .frame{flex:none;scroll-snap-align:start;height:clamp(260px,42vw,520px)}
+.reel .w1{aspect-ratio:3/4}.reel .w2{aspect-ratio:4/3}.reel .w3{aspect-ratio:16/9}.reel .w4{aspect-ratio:9/16}
+
+/* Tjenesteindeks */
+.index{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)}
+.index a{text-decoration:none;padding:20px var(--gutter) 22px 0;display:flex;flex-direction:column;gap:6px}
+.index a + a{padding-left:20px;border-left:1px solid var(--line)}
+.index a:hover h3{text-decoration:underline}
+@media (max-width:820px){.index{grid-template-columns:1fr 1fr}.index a:nth-child(3){padding-left:0;border-left:0}.index a:nth-child(n+3){border-top:1px solid var(--line)}}
+
+/* Case */
+.cases{display:grid;gap:clamp(48px,8vw,110px)}
+.case{display:grid;grid-template-columns:1.4fr 1fr;gap:clamp(20px,4vw,56px);align-items:end}
+.case:nth-child(even){grid-template-columns:1fr 1.4fr}
+.case:nth-child(even) .frame{order:2}
+.case .frame{aspect-ratio:4/3}
+.case dl{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin-top:18px;font-size:.92rem}
+.case dt{font-family:var(--mono);font-size:.7rem;text-transform:uppercase;color:var(--mute);padding-top:3px}
+@media (max-width:820px){.case,.case:nth-child(even){grid-template-columns:1fr}.case:nth-child(even) .frame{order:0}}
+
+/* Prosess */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:40px;counter-reset:s}
+.step{padding:24px 24px 0 0;border-top:2px solid var(--ink);position:relative}
+.step::before{counter-increment:s;content:"0" counter(s);font-family:var(--mono);font-size:.8rem;color:var(--mute);display:block;margin-bottom:28px}
+.step::after{content:"";position:absolute;top:-7px;left:0;width:12px;height:12px;border-radius:50%;background:var(--ink)}
+.step p{color:var(--mute);margin-top:8px;font-size:.95rem}
+@media (max-width:820px){.steps{grid-template-columns:1fr;border-left:2px solid var(--ink);margin-left:6px}.step{border-top:0;padding:0 0 32px 24px}.step::after{left:-7px;top:2px}.step::before{margin-bottom:8px}}
+
+/* Footer */
+footer{background:var(--ink);color:var(--paper);padding:clamp(56px,9vw,110px) var(--gutter) 32px}
+footer h2{max-width:14ch}
+.foot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:56px;padding-top:24px;border-top:1px solid #333}
+.foot-grid .mono{color:#999;margin-bottom:8px;display:block}
+footer a{text-decoration:none}
+footer .btn{border-color:var(--paper);color:var(--paper)}
+@media (max-width:820px){.foot-grid{grid-template-columns:1fr}}
+
+/* ---------- Ruten ---------- */
+.route{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:clamp(24px,4vw,64px);align-items:start}
+@media (max-width:900px){.route{grid-template-columns:1fr}}
+.map-wrap{position:sticky;top:84px;border:1px solid var(--line);background:#ebe8e1;padding:12px}
+@media (max-width:900px){.map-wrap{position:relative;top:0}}
+.map-wrap svg{width:100%;height:auto;display:block;max-height:78svh}
+.land{fill:var(--paper);stroke:var(--ink);stroke-width:1.2}
+.grid-l{stroke:var(--line);stroke-width:.6}
+.route-line{fill:none;stroke:var(--accent);stroke-width:2;stroke-dasharray:6 5}
+.pin{cursor:pointer}
+.pin circle{transition:r .2s}
+.pin text{font-family:var(--mono);font-size:10px;text-transform:uppercase}
+.pin.planned circle{fill:var(--accent)}
+.pin.interest circle{fill:var(--paper);stroke:var(--ink);stroke-width:1.5}
+.pin.home circle{fill:var(--ink)}
+.pin.sel circle{r:9}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.tours{list-style:none;border-top:1px solid var(--ink)}
+.tour{border-bottom:1px solid var(--line);padding:18px 0;display:grid;grid-template-columns:1fr auto;gap:6px 16px;align-items:center;cursor:pointer}
+.tour:hover,.tour.sel{background:linear-gradient(90deg,#fff8,transparent)}
+.tour .when{font-family:var(--mono);font-size:.75rem;text-transform:uppercase;color:var(--mute)}
+.tour .status{font-family:var(--mono);font-size:.68rem;text-transform:uppercase;padding:3px 8px;border-radius:999px;border:1px solid currentColor}
+.tour .status.open{color:var(--accent)}
+.tour .status.few{color:#a36b00}
+.tour .status.int{color:var(--mute)}
+.tour .go{grid-column:1/-1;display:none}
+.tour.sel .go{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+
+/* ---------- Bestill ---------- */
+.flow{max-width:720px}
+.progress{display:flex;gap:6px;margin:28px 0 36px}
+.progress i{flex:1;height:3px;background:var(--line)}
+.progress i.on{background:var(--ink)}
+.q{display:none}
+.q.active{display:block;animation:in .35s ease}
+@keyframes in{from{opacity:0;transform:translateY(8px)}}
+.q h2{font-size:clamp(1.8rem,4.5vw,3rem);margin-bottom:24px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:18px}
+.field label{font-family:var(--mono);font-size:.72rem;text-transform:uppercase;color:var(--mute)}
+input,textarea,select{font:inherit;font-size:1.1rem;padding:14px 0;border:0;border-bottom:1.5px solid var(--ink);background:transparent;color:var(--ink);border-radius:0;width:100%}
+input:focus,textarea:focus{outline:none;border-bottom-color:var(--accent)}
+textarea{min-height:90px;resize:vertical}
+.big-input{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:700;letter-spacing:-.02em}
+.result{border:1.5px solid var(--ink);padding:20px;margin:18px 0;display:none}
+.result.show{display:block;animation:in .3s ease}
+.result h3{margin:6px 0 10px}
+.choices{display:grid;gap:10px;margin-top:14px}
+.choice{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);padding:14px 16px;cursor:pointer;background:transparent;text-align:left;width:100%}
+.choice:has(input:checked){border-color:var(--ink);background:#fff8}
+.choice input{width:auto;margin-top:4px;accent-color:var(--ink)}
+.choice small{display:block;color:var(--mute);font-size:.85rem}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 24px}
+@media (max-width:640px){.grid2{grid-template-columns:1fr}}
+.flow-nav{display:flex;justify-content:space-between;gap:12px;margin-top:28px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chips button{border:1px solid var(--line);background:none;padding:6px 12px;border-radius:999px;font-size:.88rem}
+.chips button:hover{border-color:var(--ink)}
+.summary{font-family:var(--mono);font-size:.8rem;border-top:1px solid var(--line);margin-top:24px;padding-top:16px;display:grid;grid-template-columns:auto 1fr;gap:6px 16px}
+.summary dt{color:var(--mute);text-transform:uppercase}
+
+/* Arbeid */
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0}
+.filters button{border:1px solid var(--line);background:none;padding:8px 14px;border-radius:999px}
+.filters button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.sheet{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:10px}
+.sheet .frame{aspect-ratio:4/3}
+.sheet .frame:nth-child(5n+1){grid-row:span 2;aspect-ratio:auto}
+
+/* ---------- Varianter (gjennomgang) ---------- */
+body[data-mode=ruten] [data-modes]:not([data-modes~=ruten]),
+body[data-mode=mote] [data-modes]:not([data-modes~=mote]),
+body[data-mode=komb] [data-modes]:not([data-modes~=komb]){display:none!important}
+.review{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:8px var(--gutter);background:var(--note);color:var(--note-ink);border-bottom:1px solid #d9b800;font-family:var(--mono);font-size:.72rem;text-transform:uppercase}
+.seg{display:inline-flex;border:1px solid #b89c00;border-radius:999px;overflow:hidden}
+.seg button{border:0;background:transparent;color:var(--note-ink);font-family:var(--mono);font-size:.72rem;text-transform:uppercase;padding:6px 12px}
+.seg button + button{border-left:1px solid #b89c00}
+.seg button[aria-pressed=true]{background:var(--note-ink);color:var(--note)}
+.review .hint{text-transform:none;opacity:.8}
+.review .note-toggle{position:static;margin-left:auto;padding:6px 12px}
+@media (max-width:640px){.review .hint{display:none}.review .note-toggle{margin-left:0}}
+.pin.daniel circle{fill:#5c5a55}
+.pin.nett circle{fill:var(--paper);stroke:var(--accent);stroke-width:2.2}
+.pin.foresp circle{fill:var(--paper);stroke:var(--ink);stroke-width:1.5;stroke-dasharray:2 2}
+.tour .status.dan{color:var(--ink)}
+.tour .status.net{color:var(--accent)}
+/* Møtevelger */
+.days{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}
+.days button{flex:none;border:1px solid var(--line);background:none;padding:10px 12px;min-width:68px;display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:10px}
+.days button b{font-size:1.25rem;line-height:1}
+.days button span{font-family:var(--mono);font-size:.65rem;text-transform:uppercase;color:var(--mute)}
+.days button[aria-pressed=true]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.days button[aria-pressed=true] span{color:#bbb}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;margin:16px 0 8px}
+.slots button{border:1px solid var(--ink);background:none;padding:12px 0;font-family:var(--mono);font-size:.9rem;border-radius:8px}
+.slots button:disabled{border-color:var(--line);color:var(--line);text-decoration:line-through;cursor:default}
+.slots button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}
+.formats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media (max-width:640px){.formats{grid-template-columns:1fr}}
+.strip-list a.slot b{font-family:var(--mono);font-weight:500}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<div class="review" role="region" aria-label="Gjennomgang">
+  <span>Skisse · variant:</span>
+  <span class="seg" id="modeSeg">
+    <button data-mode="ruten">Ruten</button>
+    <button data-mode="mote">Møtebooking</button>
+    <button data-mode="komb">Kombinert</button>
+  </span>
+  <span class="hint" id="modeHint"></span>
+  <button class="note-toggle" id="noteToggle">Skjul notater</button>
+</div>
+
+<header class="top">
+  <a class="brand" href="#/"><b>Bedriftsfotografen</b><span>En del av Næring i Nord</span></a>
+  <nav class="nav" id="nav">
+    <a href="#/arbeid">Arbeid</a>
+    <a href="#/tjenester">Tjenester</a>
+    <a href="#/ruten" class="js-route-label">Ruten</a>
+    <a href="#/om">Om</a>
+  </nav>
+  <a class="btn solid js-cta" href="#/bestill">Bestill besøk →</a>
+  <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="nav">Meny</button>
+</header>
+<a class="btn accent fab js-cta" href="#/bestill">Bestill besøk →</a>
+
+<main>
+
+<!-- ================= FORSIDE ================= -->
+<div class="page" data-page="/">
+  <section class="hero">
+    <div class="frame video"><span class="no">#001</span><span class="cap">Åpningsbilde/-video · byttes ofte · full skjerm</span></div>
+    <div class="hero-inner">
+      <span class="eyebrow">Bedriftsfoto og -video · Hele Norge</span>
+      <h1><span>Vi kommer</span><span>til dere.</span></h1>
+      <p class="lede" style="margin-top:18px" data-modes="ruten">Daniel reiser landet rundt hele året. Se når han er i nærheten, og bli med på ruten.</p>
+      <p class="lede" style="margin-top:18px" data-modes="mote">Fotograf over hele landet, og én kontaktperson hos oss. Book en kort prat, så finner vi riktig fotograf og dag.</p>
+      <p class="lede" style="margin-top:18px" data-modes="komb">Er Daniel i nærheten, blir dere med på ruten hans. Haster det, finner vi en fotograf til dere.</p>
+      <div class="actions">
+        <a class="btn solid" href="#/ruten" data-modes="ruten komb">Når er vi i nærheten? →</a>
+        <a class="btn solid" href="#/bestill" data-modes="mote">Book et planleggingsmøte →</a>
+        <a class="btn" href="#/bestill" data-modes="komb">Haster det? Book møte</a>
+        <a class="btn" href="#/arbeid" data-modes="ruten mote">Se arbeid</a>
+      </div>
+      <span class="note" data-modes="ruten">Notat: Ingen bokser i toppen. Ett stort bilde, én påstand og to valg. «Når er vi i nærheten?» er hovedhandlingen og sender kunden rett inn i konseptet.</span>
+      <span class="note" data-modes="mote">Notat: Hovedhandlingen er nå et møte, ikke en dato for fotografering. Kunden forplikter seg ikke til noe, og dere slipper å love en dato før fotografen er avklart.</span>
+      <span class="note" data-modes="komb">Notat: To veier inn. Ruten for dem som kan vente og vil spare reisekostnad, møte for dem som har det travelt.</span>
+    </div>
+  </section>
+
+  <section class="strip" aria-label="Kommende turer">
+    <div class="strip-inner">
+      <div class="strip-label"><i class="dot"></i><span class="mono" id="stripLabel">På ruten nå</span></div>
+      <div class="strip-list" id="stripList"></div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <span class="note" data-modes="ruten komb">Notat: Rutestripen er den viktigste salgsflaten. Den viser de neste turene, og et klikk på en tur går rett til bestilling med regionen ferdig utfylt. Dataene kommer fra CMS-et.</span>
+    <span class="note" data-modes="mote">Notat: Stripen viser de neste ledige møtetidene, hentet direkte fra kalenderen. Et klikk går rett til bestilling med tiden valgt. Det gjør det konkret og lett å ta et første steg.</span>
+  </div>
+
+  <section class="wrap" style="padding-bottom:0">
+    <span class="eyebrow">Hva vi fotograferer · foto og video</span>
+    <nav class="index" id="serviceIndex" aria-label="Tjenester"></nav>
+    <span class="note">Notat: Indeksen er ankeret for oversikt. Fire grupper, ett klikk hopper til kapittelet under. Det kreative kommer etterpå, men kunden finner alltid fram her.</span>
+  </section>
+
+  <div id="chapters"></div>
+
+  <section class="wrap" style="border-top:1px solid var(--line)">
+    <span class="eyebrow">Utvalgte oppdrag</span>
+    <h2 style="margin-bottom:clamp(40px,6vw,80px)">Fra feltloggen</h2>
+    <div class="cases">
+      <article class="case">
+        <div class="frame"><span class="no">#118</span><span class="cap">Hovedbilde fra caset</span></div>
+        <div>
+          <span class="eyebrow">Mo i Rana · Interiør</span>
+          <h3>Kundenavn: utstillingslokale som selger seg selv</h3>
+          <p class="mute" style="margin-top:12px">2–3 setninger om hva kunden trengte, hva vi gjorde, og hvor bildene brukes nå.</p>
+          <dl><dt>Leveranse</dt><dd>42 bilder · 1 film (60 s)</dd><dt>Brukt i</dt><dd>Nettside, Instagram, katalog</dd></dl>
+          <p style="margin-top:18px"><a href="#/arbeid">Se hele caset →</a></p>
+        </div>
+      </article>
+      <article class="case">
+        <div class="frame video"><span class="no">#204</span><span class="cap">Video i loop</span></div>
+        <div>
+          <span class="eyebrow">Narvik · Anlegg · Folk</span>
+          <h3>Kundenavn: rekruttering fra byggeplassen</h3>
+          <p class="mute" style="margin-top:12px">Ekte folk i ekte arbeid. Brukt i stillingsannonser og på LinkedIn.</p>
+          <dl><dt>Leveranse</dt><dd>30 bilder · 3 korte klipp</dd><dt>Brukt i</dt><dd>Finn.no, LinkedIn</dd></dl>
+          <p style="margin-top:18px"><a href="#/arbeid">Se hele caset →</a></p>
+        </div>
+      </article>
+    </div>
+    <span class="note">Notat: Casene vises store og skjevt, annenhver vei, og ikke i et rutenett. «Brukt i» viser verdien for kunden, ikke bare bildene.</span>
+  </section>
+
+  <section class="wrap" style="border-top:1px solid var(--line)">
+    <span class="eyebrow">Slik foregår det</span>
+    <h2 data-modes="ruten komb">Ingen stress med datoer.</h2>
+    <h2 data-modes="mote">Én prat, så ordner vi resten.</h2>
+    <div class="steps" data-modes="ruten">
+      <div class="step"><h3>Meld behov</h3><p>Fortell hvor dere er og hva dere trenger. Det tar to minutter.</p></div>
+      <div class="step"><h3>Vi setter dere på ruten</h3><p>Vi foreslår en dag når Daniel likevel er i området, og sender et tilbud.</p></div>
+      <div class="step"><h3>Fotodag</h3><p>Daniel kommer til dere med alt utstyret. Dere gjør bare jobben deres.</p></div>
+      <div class="step"><h3>Levering</h3><p>Ferdig redigerte bilder og video, klare til bruk.</p></div>
+    </div>
+    <div class="steps" data-modes="mote">
+      <div class="step"><h3>Book et møte</h3><p>20 minutter på video, telefon eller hos oss. Velg en tid som passer.</p></div>
+      <div class="step"><h3>Vi planlegger sammen</h3><p>Hva skal fotograferes, hvor, og hva skal bildene brukes til? Dere får et tilbud etterpå.</p></div>
+      <div class="step"><h3>Riktig fotograf på plass</h3><p>Daniel eller en fotograf fra nettverket vårt. Dere har én kontaktperson hos oss hele veien.</p></div>
+      <div class="step"><h3>Levering</h3><p>Ferdig redigerte bilder og video, klare til bruk.</p></div>
+    </div>
+    <div class="steps" data-modes="komb">
+      <div class="step"><h3>Meld behov</h3><p>Fortell hvor dere er og hva dere trenger.</p></div>
+      <div class="step"><h3>Rute eller raskt</h3><p>Er Daniel i nærheten, blir dere med på turen hans. Haster det, finner vi en fotograf lokalt.</p></div>
+      <div class="step"><h3>Fotodag</h3><p>Fotografen kommer til dere med alt utstyret.</p></div>
+      <div class="step"><h3>Levering</h3><p>Ferdig redigerte bilder og video, klare til bruk.</p></div>
+    </div>
+    <span class="note" data-modes="mote komb">Notat: At dere er et ekstra ledd mellom kunde og innleid fotograf, er presentert som en fordel: én kontaktperson, samme kvalitetskrav og samme leveranse, uansett hvem som holder kameraet.</span>
+  </section>
+</div>
+
+<!-- ================= RUTEN ================= -->
+<div class="page" data-page="/ruten">
+  <section class="wrap">
+    <div data-modes="ruten">
+      <span class="eyebrow">Ruten · oppdateres fortløpende</span>
+      <h1 style="font-size:clamp(2.4rem,7vw,5.5rem)">Hvor er Daniel<br>de neste månedene?</h1>
+      <p class="lede mute" style="margin:18px 0 40px">Bli med på en tur som allerede er planlagt. Da slipper dere egen reisekostnad. Er det ingen tur til dere? Meld interesse, så samler vi opp.</p>
+    </div>
+    <div data-modes="mote">
+      <span class="eyebrow">Dekning · hele landet</span>
+      <h1 style="font-size:clamp(2.4rem,7vw,5.5rem)">Vi har fotograf<br>der dere er.</h1>
+      <p class="lede mute" style="margin:18px 0 40px">Daniel dekker Nord-Norge fra basen i Narvik. Ellers i landet bruker vi fotografer fra nettverket vårt, og der vi ikke har noen fast, finner vi en. Dere har uansett én kontaktperson hos oss.</p>
+    </div>
+    <div data-modes="komb">
+      <span class="eyebrow">Ruten + nettverket</span>
+      <h1 style="font-size:clamp(2.4rem,7vw,5.5rem)">Vent på Daniel,<br>eller ha det raskt.</h1>
+      <p class="lede mute" style="margin:18px 0 40px">Bli med på en planlagt tur og spar reisekostnaden. Passer ikke datoen, eller trenger dere bilder oftere? Book et møte, så finner vi en fotograf i nærheten.</p>
+    </div>
+    <div class="route">
+      <div class="map-wrap">
+        <svg id="map" viewBox="0 0 520 580" role="img" aria-label="Skjematisk kart over Norge med planlagte turer"></svg>
+        <div class="legend mono" id="legend"></div>
+        <span class="note">Notat: Kartet er skjematisk i denne skissen. I den ferdige løsningen tegnes en stilisert SVG av Norge, og den stiplede rutelinjen tegnes mens man scroller.</span>
+      </div>
+      <div>
+        <ul class="tours" id="tourList"></ul>
+        <span class="note" data-modes="ruten">Notat: Ett klikk på en tur viser handlingene. Ingen kundenavn, bare region og periode. «Få plasser igjen» kan styres manuelt i CMS-et og fungerer som en mild påminnelse om å bestemme seg.</span>
+        <span class="note" data-modes="mote">Notat: Ingen datoer å holde oppdatert. Dere vedlikeholder bare hvilke regioner som har fast fotograf. Navn på innleide fotografer vises ikke, så dere kan bytte uten å endre siden.</span>
+        <span class="note" data-modes="komb">Notat: Turene trenger ikke være låst. Står det «foreløpig», kan dere flytte dem, og møte-alternativet fanger opp kunder som ikke kan vente.</span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ================= BESTILL ================= -->
+<div class="page" data-page="/bestill">
+  <section class="wrap">
+    <div class="flow">
+      <span class="eyebrow" id="flowEyebrow">Bestill besøk · uforpliktende</span>
+      <div class="progress" id="progress"></div>
+
+      <div class="q" data-key="place">
+        <h2>Hvor holder dere til?</h2>
+        <div class="field">
+          <label for="place">Postnummer eller sted</label>
+          <input id="place" class="big-input" inputmode="text" autocomplete="postal-code" placeholder="f.eks. 8006 eller Bodø">
+        </div>
+        <div class="chips" id="regionChips"></div>
+        <div class="result" id="placeResult"></div>
+        <span class="note">Notat: Første steg er bare stedet, fordi det avgjør resten. Prøv 8006 (Salten), 9600 (Finnmark), 7010 (Trondheim) eller 8514 (Narvik).</span>
+      </div>
+
+      <div class="q" data-key="services">
+        <h2>Hva trenger dere?</h2>
+        <div class="choices" id="serviceChoices"></div>
+        <div class="field" style="margin-top:20px">
+          <label for="desc">Fortell litt mer (valgfritt)</label>
+          <textarea id="desc" placeholder="F.eks. nye portretter av 12 ansatte og bilder av butikken til ny nettside."></textarea>
+        </div>
+      </div>
+
+      <div class="q" data-key="meeting">
+        <h2>Når passer det å ta en prat?</h2>
+        <p class="mute" style="margin:-10px 0 20px">20 minutter med Daniel eller prosjektleder. Vi går gjennom hva dere trenger og finner fotograf og dag.</p>
+        <div class="days" id="days" aria-label="Velg dag"></div>
+        <div class="slots" id="slots" aria-label="Velg tid"></div>
+        <div class="field" style="margin-top:18px"><label>Hvordan vil dere møtes?</label></div>
+        <div class="formats" id="formats"></div>
+        <span class="note">Notat: I den ferdige løsningen hentes ledige tider fra en ekte kalender (f.eks. Microsoft Bookings eller Cal.com koblet mot Outlook). Kunden får invitasjon med Teams-lenke automatisk.</span>
+      </div>
+
+      <div class="q" data-key="contact">
+        <h2>Hvem tar vi kontakt med?</h2>
+        <div class="grid2">
+          <div class="field"><label for="f-co">Firma</label><input id="f-co" autocomplete="organization"></div>
+          <div class="field"><label for="f-org">Org.nr. (valgfritt)</label><input id="f-org" inputmode="numeric"></div>
+          <div class="field"><label for="f-name">Navn</label><input id="f-name" autocomplete="name"></div>
+          <div class="field"><label for="f-tel">Telefon</label><input id="f-tel" type="tel" autocomplete="tel"></div>
+        </div>
+        <div class="field"><label for="f-mail">E-post</label><input id="f-mail" type="email" autocomplete="email"></div>
+        <span class="note">Notat: Org.nr. kan senere fylle ut firmanavn automatisk via Brønnøysundregistrene.</span>
+      </div>
+
+      <div class="q" data-key="done">
+        <span class="eyebrow">Sendt (skisse – ingenting er sendt)</span>
+        <h2 id="doneTitle">Takk! Vi tar kontakt innen to virkedager.</h2>
+        <p class="lede mute" id="doneText">Dere får et forslag til dag og et tilbud. Ingenting er bindende før dere har sagt ja.</p>
+        <dl class="summary" id="summary"></dl>
+        <span class="note">Notat: Forespørselen lagres i CMS-et med status Ny, og det går ut en e-post til kontakt@nin.no. Kunden får en kopi på e-post.</span>
+      </div>
+
+      <div class="flow-nav" id="flowNav">
+        <button class="btn" id="back">← Tilbake</button>
+        <button class="btn solid" id="next">Neste →</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ================= ARBEID ================= -->
+<div class="page" data-page="/arbeid">
+  <section class="wrap">
+    <span class="eyebrow">Arbeid · kontaktark</span>
+    <h1 style="font-size:clamp(2.4rem,7vw,5.5rem)">Alt vi har laget.</h1>
+    <div class="filters" id="workFilters"></div>
+    <div class="sheet" id="sheet"></div>
+    <span class="note">Notat: Porteføljen vises som et kontaktark: tett, rytmisk og med ulike formater. Filtre etter tjenestegruppe og region. Klikk på et bilde åpner caset (/arbeid/[kunde]).</span>
+  </section>
+</div>
+
+<!-- ================= TJENESTER ================= -->
+<div class="page" data-page="/tjenester">
+  <section class="wrap">
+    <span class="eyebrow">Tjenester · alt leveres som foto og video</span>
+    <h1 style="font-size:clamp(2.4rem,7vw,5.5rem)">Hva skal bildene brukes til?</h1>
+    <p class="lede mute" style="margin:18px 0 48px">Fire grupper, og hver tjeneste har sin egen side med eksempler og typiske leveranser.</p>
+    <div id="serviceList"></div>
+    <span class="note">Notat: Hver underpunkt blir en egen side (/tjenester/ansattportretter osv.). Det gir SEO per tjeneste og per region, f.eks. «ansattportretter Bodø».</span>
+  </section>
+</div>
+
+<!-- ================= OM ================= -->
+<div class="page" data-page="/om">
+  <section class="wrap">
+    <div class="case" style="align-items:start">
+      <div class="frame" style="aspect-ratio:4/5"><span class="no">#000</span><span class="cap">Portrett av Daniel, gjerne på farten</span></div>
+      <div>
+        <span class="eyebrow">Om</span>
+        <h2>Daniel Waleniussen</h2>
+        <p class="lede" style="margin-top:18px">Fotograf, på veien det meste av året. Kort, personlig tekst om bakgrunn, stil og hvorfor han liker å jobbe hos kundene.</p>
+        <p class="mute" style="margin-top:18px">Bedriftsfotografen er en del av <a href="https://nin.no">Næring i Nord</a>. Avsnitt om hvorfor det gir trygghet: etablert, lokal forankring og eksisterende kunder over hele landet.</p>
+        <span class="note">Notat: Siden er personlig. Folk kjøper fotografen, ikke firmaet. Bra å ha med et kort «bak kamera»-klipp.</span>
+      </div>
+    </div>
+  </section>
+</div>
+
+</main>
+
+<footer>
+  <span class="eyebrow" style="color:#999" data-modes="ruten komb">Neste tur kan gå forbi dere</span>
+  <span class="eyebrow" style="color:#999" data-modes="mote">Usikker på hva dere trenger?</span>
+  <h2 data-modes="ruten komb">Skal vi stoppe hos dere?</h2>
+  <h2 data-modes="mote">La oss ta en prat.</h2>
+  <p style="margin-top:28px"><a class="btn js-cta" href="#/bestill">Bestill besøk →</a></p>
+  <div class="foot-grid">
+    <div><span class="mono">Kontakt</span><a href="mailto:kontakt@nin.no">kontakt@nin.no</a><br><a href="tel:+4776940000">+47 76 94 00 00</a></div>
+    <div><span class="mono">Besøksadresse</span>Ankenesveien 179<br>Ankenes, Narvik</div>
+    <div><span class="mono">En del av</span><a href="https://nin.no">Næring i Nord · nin.no</a></div>
+  </div>
+  <p class="mono" style="margin-top:40px;color:#777">Skisse v0.2 · Eksempeldata, turer og datoer er fiktive</p>
+</footer>
+
+<script>
+/* ---------- Eksempeldata (kommer fra CMS i ferdig løsning) ---------- */
+const REGIONS = [
+  {id:"ofoten",  name:"Narvik / Ofoten",      lon:17.43,lat:68.44, zip:[[8500,8599]], type:"home",     when:"Base · hele året",  status:"Base"},
+  {id:"salten",  name:"Bodø / Salten",        lon:14.40,lat:67.28, zip:[[8000,8299]], type:"planned",  when:"Uke 44–45",         status:"Ledig", st:"open"},
+  {id:"lofoten", name:"Lofoten / Vesterålen", lon:14.10,lat:68.35, zip:[[8300,8499]], type:"planned",  when:"Uke 47",            status:"Få plasser", st:"few"},
+  {id:"tromso",  name:"Tromsø",               lon:18.96,lat:69.65, zip:[[9000,9399]], type:"planned",  when:"November",          status:"Ledig", st:"open"},
+  {id:"helgeland",name:"Mo i Rana / Helgeland",lon:14.14,lat:66.31,zip:[[8600,8999]], type:"planned",  when:"Desember",          status:"Ledig", st:"open"},
+  {id:"finnmark",name:"Finnmark",             lon:23.27,lat:69.97, zip:[[9400,9999]], type:"interest", when:"Ingen tur ennå",    status:"4 har meldt interesse", st:"int"},
+  {id:"trondelag",name:"Trøndelag",           lon:10.40,lat:63.43, zip:[[7000,7999]], type:"interest", when:"Ingen tur ennå",    status:"2 har meldt interesse", st:"int"},
+  {id:"vest",    name:"Vestlandet",           lon:5.32, lat:60.39, zip:[[4000,6999]], type:"interest", when:"Ingen tur ennå",    status:"Samler interesse", st:"int"},
+  {id:"ost",     name:"Østlandet",            lon:10.75,lat:59.91, zip:[[0,3999]],   type:"interest", when:"Ingen tur ennå",    status:"Samler interesse", st:"int"},
+];
+const SERVICES = [
+  {id:"folk",   name:"Folk",               desc:"Ansikter som bygger tillit, både i rekruttering og salg.", items:["Ansattportretter","Team og ledelse","Folk i arbeid"]},
+  {id:"arbeid", name:"Arbeid & tjenester", desc:"Vis hva dere faktisk gjør, ute i felt.",                  items:["Tjeneste i praksis","Prosjekter","Anlegg og byggeplass"]},
+  {id:"steder", name:"Steder",             desc:"Lokaler som frister kunder og nye ansatte.",              items:["Kontor","Butikk","Butikkfront","Interiør","Anlegg"]},
+  {id:"produkt",name:"Produkt & mat",      desc:"Detaljer som selger i nettbutikk og på meny.",            items:["Produkt","Mat","Detalj"]},
+];
+const EXTRAS = [
+  {id:"rekruttering",name:"Rekrutteringspakke",desc:"Portretter + arbeidsmiljø + kort video"},
+  {id:"fast",name:"Fast besøk 1–2 ganger i året",desc:"Bildebanken holdes oppdatert, og vi tar dere med på ruten automatisk"},
+];
+
+/* Hvem dekker hvilken region (kommer fra CMS) */
+const COVER={ofoten:"daniel",salten:"daniel",lofoten:"daniel",tromso:"daniel",helgeland:"daniel",trondelag:"nett",vest:"nett",ost:"nett",finnmark:"foresp"};
+REGIONS.forEach(r=>r.cover=COVER[r.id]);
+const COVER_TXT={daniel:"Daniel · fast dekning",nett:"Fotograf i nettverket",foresp:"Vi finner fotograf"};
+const COVER_ST={daniel:"dan",nett:"net",foresp:"int"};
+
+/* ---------- Variant (gjennomgang) ---------- */
+const MODES={
+  ruten:{cta:"Bestill besøk →",route:"Ruten",strip:"På ruten nå",flow:"Bestill besøk · uforpliktende",
+    hint:"Forhåndsplanlagte turer med Daniel. Krever at ruten holdes oppdatert."},
+  mote:{cta:"Book møte →",route:"Dekning",strip:"Ledige møtetider",flow:"Book planleggingsmøte · 20 min",
+    hint:"Kunden booker et møte. Fotograf (Daniel eller nettverket) avklares i møtet. Ingen rute å vedlikeholde."},
+  komb:{cta:"Bestill fotograf →",route:"Ruten",strip:"På ruten nå",flow:"Bestill fotograf · uforpliktende",
+    hint:"Daniels rute når han er i nærheten, ellers møte og fotograf fra nettverket."},
+};
+let MODE="ruten";
+try{const m=localStorage.getItem("bf-mode");if(MODES[m])MODE=m}catch(e){}
+function setMode(m){
+  MODE=m; document.body.dataset.mode=m;
+  try{localStorage.setItem("bf-mode",m)}catch(e){}
+  const c=MODES[m];
+  document.querySelectorAll("#modeSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.mode===m));
+  document.getElementById("modeHint").textContent=c.hint;
+  document.querySelectorAll(".js-cta").forEach(a=>a.textContent=c.cta);
+  document.querySelectorAll(".js-route-label").forEach(a=>a.textContent=c.route);
+  document.getElementById("stripLabel").textContent=c.strip;
+  document.getElementById("flowEyebrow").textContent=c.flow;
+  drawStrip(); drawMap(); drawList();
+  if(currentPath()==="/bestill") startFlow(); 
+}
+document.querySelectorAll("#modeSeg button").forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
+
+/* ---------- Ruting ---------- */
+const pages=[...document.querySelectorAll(".page")];
+const currentPath=()=>{const p=(location.hash.replace(/^#/,"")||"/").split("?")[0];return pages.some(x=>x.dataset.page===p)?p:"/"};
+function route(){
+  const p=currentPath(), qs=new URLSearchParams((location.hash.split("?")[1])||"");
+  pages.forEach(x=>x.classList.toggle("active",x.dataset.page===p));
+  document.querySelectorAll(".nav a").forEach(a=>{a.getAttribute("href")==="#"+p?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current")});
+  nav.classList.remove("open");menuBtn.setAttribute("aria-expanded","false");menuBtn.textContent="Meny";
+  if(p==="/bestill") startFlow(qs.get("region"),qs.get("tid"));
+  const anchor=qs.get("til");
+  if(anchor){requestAnimationFrame(()=>document.getElementById(anchor)?.scrollIntoView())}else window.scrollTo(0,0);
+}
+window.addEventListener("hashchange",route);
+
+const nav=document.getElementById("nav"),menuBtn=document.getElementById("menuBtn");
+menuBtn.onclick=()=>{const o=nav.classList.toggle("open");menuBtn.setAttribute("aria-expanded",o);menuBtn.textContent=o?"Lukk":"Meny"};
+document.getElementById("noteToggle").onclick=e=>{const h=document.body.classList.toggle("hide-notes");e.target.textContent=h?"Vis notater":"Skjul notater"};
+
+/* ---------- Møtetider (eksempel – kommer fra kalender) ---------- */
+const DAYNAMES=["søn","man","tir","ons","tor","fre","lør"];
+const MONTHS=["januar","februar","mars","april","mai","juni","juli","august","september","oktober","november","desember"];
+const TIMES=["09:00","09:30","10:30","11:00","13:00","14:00","14:30","15:30"];
+const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const DAYS=(()=>{const out=[];const d=new Date();d.setHours(12,0,0,0);while(out.length<10){d.setDate(d.getDate()+1);if(d.getDay()%6)out.push(new Date(d))}return out})();
+const taken=(day,t)=>{let h=0;for(const ch of iso(day)+t)h=(h*31+ch.charCodeAt(0))%997;return h%3===0};
+const fmtDay=d=>`${DAYNAMES[d.getDay()]} ${d.getDate()}. ${MONTHS[d.getMonth()]}`;
+const nextSlots=n=>DAYS.map(d=>({d,t:TIMES.find(t=>!taken(d,t))})).filter(x=>x.t).slice(0,n);
+
+/* ---------- Forside ---------- */
+const tours=REGIONS.filter(r=>r.type==="planned");
+function drawStrip(){
+  const el=document.getElementById("stripList");
+  if(MODE==="mote"){
+    el.innerHTML=nextSlots(5).map(s=>`<a class="slot" href="#/bestill?tid=${iso(s.d)}_${s.t}"><b>${s.t}</b><span>${fmtDay(s.d)}</span></a>`).join("")+`<a class="more" href="#/bestill">Se alle tider →</a>`;
+  }else{
+    el.innerHTML=tours.map(t=>`<a href="#/bestill?region=${t.id}"><b>${t.name}</b><span>${t.when} · ${t.status}</span></a>`).join("")
+      +(MODE==="komb"?`<a class="more" href="#/bestill">Passer ikke? Book møte →</a>`:`<a class="more" href="#/ruten">Hele ruten →</a>`);
+  }
+}
+document.getElementById("serviceIndex").innerHTML=SERVICES.map((s,i)=>`<a href="#/?til=kap-${s.id}"><span class="mono mute">0${i+1}</span><h3>${s.name}</h3><span class="mute" style="font-size:.9rem">${s.items.join(" · ")}</span></a>`).join("");
+const ws=["w1","w2","w3","w1","w4","w2"];
+let n=10;
+document.getElementById("chapters").innerHTML=SERVICES.map((s,i)=>`
+  <section class="chapter" id="kap-${s.id}">
+    <div class="chapter-head">
+      <span class="num">0${i+1} / 04</span>
+      <h2>${s.name}</h2>
+      <a href="#/tjenester" class="mono" style="justify-self:end">Les mer →</a>
+      <p>${s.desc}</p>
+      <div class="tags">${s.items.map(x=>`<span class="tag">${x}</span>`).join("")}</div>
+    </div>
+    <div class="reel">${ws.map((w,j)=>`<div class="frame ${w} ${j===2?"video":""}"><span class="no">#${String(n++).padStart(3,"0")}</span><span class="cap">${s.items[j%s.items.length]} · ${REGIONS[(i+j)%6].name.split(" /")[0]}</span></div>`).join("")}</div>
+  </section>`).join("")+`<div class="wrap"><span class="note">Notat: Hver tjenestegruppe er et kapittel med en «filmrull» som scrolles sidelengs (sveip på mobil). Bildene har ulike formater for å få rytme. Videoklipp spilles av lydløst i loop.</span></div>`;
+
+/* ---------- Kart ---------- */
+const K=38, proj=(lon,lat)=>[ (lon-4)*0.45*K+20, (71.6-lat)*K+10 ];
+const OUTLINE=[[7.05,57.98],[8,58.15],[8.8,58.45],[10,59],[10.5,59.3],[10.75,59.9],[11.1,59.2],[11.4,59.12],[12.3,60],[12.6,61],[12.2,62],[12.1,63],[13.9,64],[14.4,65.2],[15.4,66.1],[16.3,67.5],[17.9,68.4],[19,68.5],[20.55,69.06],[22,68.7],[23,68.6],[24.5,68.8],[25.8,69.6],[27,70],[28.5,69.9],[29,69.5],[30,69.7],[31,70.35],[28.5,70.9],[25.8,71.17],[23.5,70.7],[21,70.25],[19,70.15],[18,69.7],[16,69.35],[15,68.9],[13,68.05],[14.5,67.5],[13,66.6],[12.4,65.6],[11,64.6],[10,63.85],[8.5,63.45],[7,62.95],[5.3,62.2],[5,61],[4.9,60.3],[5.3,59.3],[5.6,58.8],[6.5,58.1]];
+const svg=document.getElementById("map");
+const LEGENDS={
+  ruten:[["background:var(--ink)","Base"],["background:var(--accent)","Planlagt tur"],["border:1.5px solid var(--ink)","Interesse samles"]],
+  mote:[["background:var(--ink)","Base"],["background:#5c5a55","Daniel dekker"],["border:2px solid var(--accent)","Fotograf i nettverket"],["border:1.5px dashed var(--ink)","Vi finner fotograf"]],
+  komb:[["background:var(--ink)","Base"],["background:var(--accent)","Daniels tur"],["border:2px solid var(--accent)","Fotograf i nettverket"],["border:1.5px dashed var(--ink)","Vi finner fotograf"]],
+};
+function pinClass(r){
+  if(r.type==="home") return "home";
+  if(MODE==="ruten") return r.type;
+  if(MODE==="komb"&&r.type==="planned") return "planned";
+  return r.cover;
+}
+function drawMap(){
+  const pts=OUTLINE.map(p=>proj(...p).map(v=>v.toFixed(1)).join(",")).join(" ");
+  let g="";
+  for(let lat=58;lat<=71;lat+=2){const y=proj(4,lat)[1];g+=`<line class="grid-l" x1="0" x2="520" y1="${y}" y2="${y}"/><text x="4" y="${y-3}" font-family="JetBrains Mono" font-size="8" fill="#999">${lat}°N</text>`}
+  const order=["ofoten","salten","lofoten","tromso","ofoten","helgeland"].map(id=>REGIONS.find(r=>r.id===id));
+  const rl=order.map(r=>proj(r.lon,r.lat).join(",")).join(" ");
+  svg.innerHTML=g+`<polygon class="land" points="${pts}"/>`+(MODE!=="mote"?`<polyline class="route-line" points="${rl}"/>`:"")+
+    REGIONS.map(r=>{const[x,y]=proj(r.lon,r.lat);const left=r.lon>16;return `<g class="pin ${pinClass(r)}" data-id="${r.id}" tabindex="0" role="button" aria-label="${r.name}"><circle cx="${x}" cy="${y}" r="6"/><text x="${left?x+10:x-10}" y="${y+3}" text-anchor="${left?"start":"end"}">${r.name.split(" /")[0]}</text></g>`}).join("");
+  svg.querySelectorAll(".pin").forEach(p=>{p.onclick=()=>selectTour(p.dataset.id);p.onkeydown=e=>{if(e.key==="Enter")selectTour(p.dataset.id)}});
+  document.getElementById("legend").innerHTML=LEGENDS[MODE].map(([st,t])=>`<span><i style="${st}"></i>${t}</span>`).join("");
+}
+
+const tourList=document.getElementById("tourList");
+function drawList(){
+  const btn=(href,t,solid)=>`<a class="btn ${solid?"solid":""}" href="${href}">${t}</a>`;
+  let rows;
+  if(MODE==="ruten"){
+    rows=[...tours,...REGIONS.filter(r=>r.type!=="planned")].map(r=>({r,when:r.when,status:r.status,st:r.st||"",
+      go:r.type==="interest"?btn(`#/bestill?region=${r.id}`,"Meld interesse →",1):btn(`#/bestill?region=${r.id}`,"Bli med på turen →",1)}));
+  }else if(MODE==="mote"){
+    const order={daniel:0,nett:1,foresp:2};
+    rows=[...REGIONS].sort((a,b)=>order[a.cover]-order[b.cover]).map(r=>({r,when:r.type==="home"?"Base · Narvik":r.cover==="daniel"?"Nord-Norge":r.cover==="nett"?"Lokal fotograf":"Fotograf hentes inn",
+      status:COVER_TXT[r.cover],st:COVER_ST[r.cover],go:btn(`#/bestill?region=${r.id}`,"Book møte →",1)}));
+  }else{
+    rows=[...tours,...REGIONS.filter(r=>r.type!=="planned")].map(r=>{
+      const planned=r.type==="planned";
+      return {r,when:planned?r.when+" · foreløpig":r.type==="home"?"Base · hele året":"Ingen tur planlagt",
+        status:planned?"Daniels tur":COVER_TXT[r.cover],st:planned?"open":COVER_ST[r.cover],
+        go:planned?btn(`#/bestill?region=${r.id}`,"Bli med på turen →",1)+btn(`#/bestill?region=${r.id}&valg=mote`,"Raskere? Book møte")
+          :r.type==="home"?btn(`#/bestill?region=${r.id}`,"Bestill →",1)
+          :btn(`#/bestill?region=${r.id}&valg=mote`,"Book møte →",1)+btn(`#/bestill?region=${r.id}&valg=interesse`,"Meld interesse for Daniels tur")};
+    });
+  }
+  tourList.innerHTML=rows.map(x=>`
+    <li class="tour" data-id="${x.r.id}">
+      <div><h3>${x.r.name}</h3><span class="when">${x.when}</span></div>
+      <span class="status ${x.st}">${x.status}</span>
+      <div class="go">${x.go}</div>
+    </li>`).join("");
+  tourList.querySelectorAll(".tour").forEach(li=>li.onclick=e=>{if(!e.target.closest("a"))selectTour(li.dataset.id)});
+}
+function selectTour(id){
+  document.querySelectorAll(".tour,.pin").forEach(el=>el.classList.toggle("sel",el.dataset.id===id));
+  const li=tourList.querySelector(`[data-id="${id}"]`);
+  if(window.innerWidth<900)li.scrollIntoView({behavior:"smooth",block:"center"});
+}
+
+/* ---------- Bestillingsflyt ---------- */
+const state={i:0,region:null,choice:null,services:new Set(),day:null,time:null,format:"video"};
+const back=document.getElementById("back"), next=document.getElementById("next");
+const placeInput=document.getElementById("place"), result=document.getElementById("placeResult");
+const FORMATS=[["video","Video (Teams)","Lenke sendes på e-post"],["telefon","Telefon","Vi ringer dere"],["fysisk","Hos oss","Ankenesveien 179"]];
+
+function steps(){
+  const s=["place","services"];
+  if(MODE==="mote"||(MODE==="komb"&&state.choice==="mote")) s.push("meeting");
+  return [...s,"contact","done"];
+}
+const key=()=>steps()[state.i];
+
+document.getElementById("regionChips").innerHTML='<span class="mono mute" style="align-self:center">eller velg:</span>'+REGIONS.map(r=>`<button type="button" data-id="${r.id}">${r.name}</button>`).join("");
+document.querySelectorAll("#regionChips button").forEach(b=>b.onclick=()=>{placeInput.value=REGIONS.find(r=>r.id===b.dataset.id).name;showRegion(b.dataset.id)});
+
+function findRegion(v){
+  v=v.trim().toLowerCase(); if(!v) return null;
+  const z=parseInt(v,10);
+  if(!isNaN(z)&&/^\d{4}$/.test(v)) return REGIONS.find(r=>r.zip.some(([a,b])=>z>=a&&z<=b));
+  return REGIONS.find(r=>r.name.toLowerCase().split(/[ /]+/).some(w=>w.length>2&&(w.startsWith(v)||v.startsWith(w))));
+}
+placeInput.addEventListener("input",()=>{const r=findRegion(placeInput.value);r?showRegion(r.id):(result.classList.remove("show"),state.region=null,updateNav())});
+
+const opt=(v,t,s)=>`<label class="choice"><input type="radio" name="when" value="${v}"><span><b>${t}</b><small>${s}</small></span></label>`;
+const WHO={daniel:"Daniel dekker området selv.",nett:"Vi har fotograf i nettverket vårt her.",foresp:"Vi har ingen fast fotograf her ennå, men vi finner en."};
+function showRegion(id,preChoice){
+  const r=REGIONS.find(x=>x.id===id); state.region=r; state.choice=null;
+  let h="";
+  if(MODE==="ruten"){
+    if(r.type==="planned") h=`<span class="eyebrow" style="color:var(--accent)">● Planlagt tur</span><h3>Daniel er i ${r.name} ${r.when.toLowerCase()}.</h3><p class="mute">Bli med på turen, så slipper dere egen reisekostnad.</p>
+      <div class="choices">${opt("tur",`Bli med på turen (${r.when})`,"Vi foreslår en konkret dag i perioden")}${opt("egen","Det haster, vi trenger en egen tur","Vi sender tilbud med reisekostnad")}</div>`;
+    else if(r.type==="home") h=`<span class="eyebrow">● Nær basen</span><h3>Dere er i nærområdet vårt.</h3><p class="mute">Vi kan som regel komme mellom turene, uten reisekostnad.</p>
+      <div class="choices">${opt("lokal","Finn en dag mellom turene","Vi foreslår et tidspunkt")}</div>`;
+    else h=`<span class="eyebrow">○ Ingen tur planlagt ennå</span><h3>Vi har ikke en tur til ${r.name} ennå.</h3><p class="mute">${r.status}. Når nok bedrifter i området har meldt seg, setter vi opp en tur, og dere får beskjed først.</p>
+      <div class="choices">${opt("interesse","Meld interesse for neste tur","Uforpliktende. Vi gir beskjed når turen er planlagt")}${opt("egen","Det haster, vi trenger en egen tur","Vi sender tilbud med reisekostnad")}</div>`;
+  }else if(MODE==="mote"){
+    h=`<span class="eyebrow">● ${COVER_TXT[r.cover]}</span><h3>${WHO[r.cover]}</h3><p class="mute">I møtet finner vi riktig fotograf og en dag som passer. Når trenger dere bildene?</p>
+      <div class="choices">${opt("snart","Innen et par uker","Vi prioriterer å finne fotograf raskt")}${opt("maaned","Innen en måned eller to","")}${opt("fleks","Fleksibelt","Vi finner den rimeligste løsningen")}</div>`;
+  }else{
+    if(r.type==="planned") h=`<span class="eyebrow" style="color:var(--accent)">● Daniel kommer ${r.when.toLowerCase()} (foreløpig)</span><h3>Bli med på turen, eller ha det raskere.</h3><p class="mute">Med Daniels tur slipper dere egen reisekostnad. Passer ikke tidspunktet, finner vi en fotograf lokalt.</p>
+      <div class="choices">${opt("tur",`Bli med på Daniels tur (${r.when})`,"Laveste reisekostnad. Vi bekrefter dagen når turen er låst")}${opt("mote","Raskere eller annen dato – book et møte","Vi finner fotograf i nærheten")}</div>`;
+    else if(r.type==="home") h=`<span class="eyebrow">● Nær basen</span><h3>Dere er i nærområdet vårt.</h3><p class="mute">Daniel kan som regel komme mellom turene.</p>
+      <div class="choices">${opt("lokal","Finn en dag med Daniel","Vi foreslår et tidspunkt")}${opt("mote","Book et møte først","Hvis dere vil planlegge sammen")}</div>`;
+    else h=`<span class="eyebrow">○ Ingen tur planlagt · ${COVER_TXT[r.cover]}</span><h3>${WHO[r.cover]}</h3><p class="mute">Book et møte, så finner vi fotograf og dag. Eller meld interesse og vent på en tur med Daniel.</p>
+      <div class="choices">${opt("mote","Book et møte","Raskest. Fotograf fra nettverket vårt")}${opt("interesse","Meld interesse for Daniels tur","Uforpliktende. Laveste reisekostnad, men usikker dato")}</div>`;
+  }
+  result.innerHTML=h; result.classList.add("show");
+  const inputs=[...result.querySelectorAll("input")];
+  inputs.forEach(i=>i.onchange=()=>{state.choice=i.value;updateNav()});
+  const pick=inputs.find(i=>i.value===preChoice)||inputs[0]; pick.checked=true; state.choice=pick.value;
+  updateNav();
+}
+
+document.getElementById("serviceChoices").innerHTML=[...SERVICES.map(s=>({id:s.id,name:s.name,desc:s.items.join(", ")})),...EXTRAS].map(s=>`<label class="choice"><input type="checkbox" value="${s.id}"><span><b>${s.name}</b><small>${s.desc}</small></span></label>`).join("");
+document.querySelectorAll("#serviceChoices input").forEach(i=>i.onchange=()=>{i.checked?state.services.add(i.value):state.services.delete(i.value);updateNav()});
+document.querySelectorAll('[data-key="contact"] input').forEach(i=>i.oninput=updateNav);
+
+/* Møtevelger */
+function drawDays(){
+  document.getElementById("days").innerHTML=DAYS.map(d=>`<button type="button" data-d="${iso(d)}" aria-pressed="${state.day===iso(d)}"><span>${DAYNAMES[d.getDay()]}</span><b>${d.getDate()}</b><span>${MONTHS[d.getMonth()].slice(0,3)}</span></button>`).join("");
+  document.querySelectorAll("#days button").forEach(b=>b.onclick=()=>{state.day=b.dataset.d;state.time=null;drawDays();drawSlots();updateNav()});
+}
+function drawSlots(){
+  const d=DAYS.find(x=>iso(x)===state.day);
+  document.getElementById("slots").innerHTML=d?TIMES.map(t=>`<button type="button" data-t="${t}" ${taken(d,t)?"disabled":""} aria-pressed="${state.time===t}">${t}</button>`).join(""):"";
+  document.querySelectorAll("#slots button").forEach(b=>b.onclick=()=>{state.time=b.dataset.t;drawSlots();updateNav()});
+}
+document.getElementById("formats").innerHTML=FORMATS.map(([v,t,s],i)=>`<label class="choice"><input type="radio" name="fmt" value="${v}" ${i?"":"checked"}><span><b>${t}</b><small>${s}</small></span></label>`).join("");
+document.querySelectorAll('#formats input').forEach(i=>i.onchange=()=>state.format=i.value);
+
+function startFlow(regionId,tid){
+  Object.assign(state,{i:0,region:null,choice:null,time:null,day:iso(DAYS[0])});
+  placeInput.value=""; result.classList.remove("show");
+  const qs=new URLSearchParams((location.hash.split("?")[1])||"");
+  regionId=regionId??qs.get("region"); tid=tid??qs.get("tid");
+  if(tid){const [d,t]=tid.split("_");state.day=d;state.time=t}
+  drawDays(); drawSlots();
+  if(regionId){const r=REGIONS.find(x=>x.id===regionId); if(r){placeInput.value=r.name; showRegion(r.id,qs.get("valg"))}}
+  render();
+}
+function canNext(){
+  switch(key()){
+    case "place": return !!state.region;
+    case "services": return state.services.size>0;
+    case "meeting": return !!state.time;
+    case "contact": return ["f-co","f-name","f-mail"].every(id=>document.getElementById(id).value.trim());
+  } return false;
+}
+function updateNav(){next.disabled=!canNext();next.style.opacity=next.disabled?.4:1}
+function render(){
+  const st=steps(), k=key();
+  document.querySelectorAll(".q").forEach(q=>q.classList.toggle("active",q.dataset.key===k));
+  document.getElementById("progress").innerHTML=st.slice(0,-1).map((_,i)=>`<i class="${i<=state.i?"on":""}"></i>`).join("");
+  back.style.visibility=state.i>0&&k!=="done"?"visible":"hidden";
+  next.style.display=k==="done"?"none":"";
+  const meet=st.includes("meeting");
+  next.textContent=k==="contact"?(meet?"Book møtet →":"Send forespørsel →"):"Neste →";
+  if(k==="done"){
+    const all=[...SERVICES,...EXTRAS];
+    const labels={tur:"Bli med på Daniels tur",egen:"Egen tur (haster)",lokal:"Dag med Daniel nær basen",interesse:"Interesse for Daniels tur",mote:"Planleggingsmøte",snart:"Innen et par uker",maaned:"Innen en måned eller to",fleks:"Fleksibelt"};
+    const d=meet&&DAYS.find(x=>iso(x)===state.day);
+    const fmt=FORMATS.find(f=>f[0]===state.format)[1];
+    document.getElementById("doneTitle").textContent=meet?`Møtet er booket: ${fmtDay(d)} kl. ${state.time}.`:"Takk! Vi tar kontakt innen to virkedager.";
+    document.getElementById("doneText").textContent=meet?`${fmt}. Dere får en kalenderinvitasjon på e-post. Etter møtet sender vi tilbud, og vi finner riktig fotograf.`:"Dere får et forslag til dag og et tilbud. Ingenting er bindende før dere har sagt ja.";
+    document.getElementById("summary").innerHTML=`<dt>Region</dt><dd>${state.region.name}</dd><dt>Ønske</dt><dd>${labels[state.choice]}${state.choice==="tur"?" · "+state.region.when:""}</dd>${meet?`<dt>Møte</dt><dd>${fmtDay(d)} kl. ${state.time} · ${fmt}</dd>`:""}<dt>Behov</dt><dd>${[...state.services].map(id=>all.find(s=>s.id===id).name).join(", ")}</dd><dt>Kontakt</dt><dd>${esc(document.getElementById("f-name").value)}, ${esc(document.getElementById("f-co").value)}</dd>`;
+  }
+  updateNav();
+}
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+next.onclick=()=>{if(canNext()){state.i++;render();window.scrollTo({top:0,behavior:"smooth"})}};
+back.onclick=()=>{state.i--;render()};
+
+/* ---------- Arbeid ---------- */
+const filters=["Alle",...SERVICES.map(s=>s.name)];
+const wf=document.getElementById("workFilters"), sheet=document.getElementById("sheet");
+wf.innerHTML=filters.map((f,i)=>`<button class="${i?"":"on"}">${f}</button>`).join("");
+function drawSheet(f){
+  let k=300; const items=[];
+  SERVICES.forEach((s,i)=>{for(let j=0;j<4;j++)items.push({s,label:s.items[j%s.items.length],place:REGIONS[(i*2+j)%7].name.split(" /")[0],v:j===1})});
+  sheet.innerHTML=items.filter(x=>f==="Alle"||x.s.name===f).map(x=>`<a href="#/arbeid" class="frame ${x.v?"video":""}"><span class="no">#${k++}</span><span class="cap">${x.label} · ${x.place}</span></a>`).join("");
+}
+wf.querySelectorAll("button").forEach(b=>b.onclick=()=>{wf.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));drawSheet(b.textContent)});
+drawSheet("Alle");
+
+/* ---------- Tjenester ---------- */
+document.getElementById("serviceList").innerHTML=SERVICES.map((s,i)=>`
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:24px;border-top:1px solid var(--ink);padding:28px 0">
+    <div><span class="mono mute">0${i+1}</span><h2 style="font-size:clamp(1.8rem,4vw,3rem)">${s.name}</h2><p class="mute" style="margin-top:10px">${s.desc}</p></div>
+    <div>${s.items.map(x=>`<a href="#/tjenester" style="display:flex;justify-content:space-between;text-decoration:none;padding:14px 0;border-bottom:1px solid var(--line);font-size:1.15rem"><span>${x}</span><span class="mono mute">Foto + video →</span></a>`).join("")}</div>
+  </div>`).join("")+`<div style="border-top:1px solid var(--ink);padding:28px 0"><span class="eyebrow">Pakker</span>${EXTRAS.map(e=>`<p style="font-size:1.15rem;padding:10px 0"><b>${e.name}</b> <span class="mute">– ${e.desc}</span></p>`).join("")}</div>`;
+
+setMode(MODE);
+route();
+</script>
+</body>
+</html>
